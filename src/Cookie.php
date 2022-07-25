@@ -7,7 +7,7 @@
  * @author     Muhammet ŞAFAK <info@muhammetsafak.com.tr>
  * @copyright  Copyright © 2022 Muhammet ŞAFAK
  * @license    ./LICENSE  MIT
- * @version    1.0
+ * @version    1.1
  * @link       https://www.muhammetsafak.com.tr
  */
 
@@ -16,8 +16,7 @@ declare(strict_types=1);
 namespace InitPHP\Cookies;
 
 use InitPHP\Cookies\Exception\CookieInvalidArgumentException;
-use InitPHP\ParameterBag\ParameterBag;
-use InitPHP\ParameterBag\ParameterBagInterface;
+use \InitPHP\ParameterBag\{ParameterBag, ParameterBagInterface};
 
 class Cookie implements CookieInterface
 {
@@ -59,13 +58,13 @@ class Cookie implements CookieInterface
 
     public function __destruct()
     {
-        $this->push();
+        $this->send();
     }
 
     /**
      * @inheritDoc
      */
-    public function push(): bool
+    public function send(): bool
     {
         if($this->isChange === FALSE){
             return true;
@@ -102,7 +101,13 @@ class Cookie implements CookieInterface
             return false;
         }
         $get = $this->storage->get($key);
-        return ($get['ttl'] === null || $get['ttl'] < \time());
+        if(!\is_array($get)){
+            return false;
+        }
+        if(($has = ($get['ttl'] === null || $get['ttl'] > \time())) === FALSE){
+            $this->remove($key);
+        }
+        return $has;
     }
 
     /**
@@ -111,6 +116,9 @@ class Cookie implements CookieInterface
     public function get(string $key, $default = null)
     {
         if(($get = $this->storage->get($key, null)) === null){
+            return $default;
+        }
+        if(!\is_array($get)){
             return $default;
         }
         if($get['ttl'] !== null && $get['ttl'] > \time()){
@@ -123,16 +131,23 @@ class Cookie implements CookieInterface
     /**
      * @inheritDoc
      */
+    public function pull(string $key, $default = null)
+    {
+        $value = $this->get($key, $default);
+        $this->remove($key);
+        return $value;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function set(string $key, $value, ?int $ttl = null): CookieInterface
     {
         if(!\is_string($value) && !\is_bool($value) && !\is_numeric($value)){
             throw new CookieInvalidArgumentException('Cookie value can only be string, boolean or numeric.');
         }
+        $ttl = $this->ttlCheck($ttl);
         $this->isChange = true;
-        $ttl = ($ttl !== null) ? (int)\abs($ttl) + \time() : null;
-        if($ttl === 0){
-            $ttl = null;
-        }
         $cookie = [
             'value'     => $value,
             'ttl'       => $ttl,
@@ -145,17 +160,13 @@ class Cookie implements CookieInterface
     /**
      * @inheritDoc
      */
-    public function setArray(array $array, ?int $ttl = null): CookieInterface
+    public function setArray(array $assoc, ?int $ttl = null): CookieInterface
     {
-        $ttl = ($ttl !== null) ? (int)\abs($ttl) + \time() : null;
-        if($ttl === 0){
-            $ttl = null;
-        }
-
+        $ttl = $this->ttlCheck($ttl);
         $cookies = [];
-        foreach ($array as $key => $value) {
+        foreach ($assoc as $key => $value) {
             if(!\is_string($key)){
-                throw new CookieInvalidArgumentException();
+                throw new CookieInvalidArgumentException("\$assoc must be an associative array.");
             }
             if(!\is_string($value) && !\is_bool($value) && !\is_numeric($value)){
                 throw new CookieInvalidArgumentException('Cookie value can only be string, boolean or numeric.');
@@ -173,15 +184,31 @@ class Cookie implements CookieInterface
     /**
      * @inheritDoc
      */
+    public function push(string $key, $value, ?int $ttl = null)
+    {
+        $this->set($key, $value, $ttl);
+        return $value;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function all(): array
     {
         $cookies = [];
         $now = \time();
-        foreach ($this->storage->all() as $key => $value) {
-            if($value['ttl'] !== null && $value['ttl'] > $now){
+        $removes = []; $all = $this->storage->all();
+        foreach ($all as $key => $value) {
+            if($value['ttl'] !== null && $value['ttl'] < $now){
+                $removes[] = $key;
                 continue;
             }
             $cookies[$key] = $value['value'];
+        }
+        unset($all);
+        if(!empty($removes)){
+            $this->remove(...$removes);
+            unset($removes);
         }
         return $cookies;
     }
@@ -199,13 +226,26 @@ class Cookie implements CookieInterface
     /**
      * @inheritDoc
      */
+    public function flush(): bool
+    {
+        $this->isChange = true;
+        $this->storage->clear();
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function destroy(): bool
     {
         $this->isChange = false;
-        $this->storage->clear();
-        return @\setcookie($this->name, '', [
+        $delete = @\setcookie($this->name, '', [
             'expires'   => (\time() - 86400)
         ]);
+        if($delete !== FALSE){
+            $this->storage->clear();
+        }
+        return $delete;
     }
 
     /**
@@ -257,6 +297,18 @@ class Cookie implements CookieInterface
             return [];
         }
         return \unserialize($data['cookies']);
+    }
+
+    protected function ttlCheck(?int $ttl): ?int
+    {
+        if($ttl === null){
+            return null;
+        }
+        $ttl = (int)\abs($ttl);
+        if($ttl === 0){
+            throw new CookieInvalidArgumentException("\$ttl can be null or a positive integer.");
+        }
+        return $ttl + \time();
     }
 
 }

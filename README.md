@@ -42,33 +42,61 @@ $cookie->set('username', 'sdd');
 public function has(string $key): bool;
 ```
 
+***
+
 ```php
 public function get(string $key, $default = null): mixed;
 ```
+
+***
+
+```php
+public function pull(string $key, $default = null): mixed;
+```
+
+***
 
 ```php
 public function set(string $key, string|bool|int|float $value, ?int $ttl = null): self;
 ```
 
+***
+
 ```php
-public function setArray(string[] $array, ?int $ttl = null): self;
+public function setArray(string[] $assoc, ?int $ttl = null): self;
 ```
+
+***
 
 ```php
 public function remove(string ...$key): bool;
 ```
 
+***
+
 ```php
-public function push(): bool;
+public function push(set $key, string|bool|int|float $value, ?int $ttl = null): string|bool|int|float;
 ```
+
+***
 
 ```php
 public function all(): array;
 ```
 
+***
+
+```php
+public function flush(): bool;
+```
+
+***
+
 ```php
 public function destroy(): bool;
 ```
+
+***
 
 
 ## Credits

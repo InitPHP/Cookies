@@ -7,7 +7,7 @@
  * @author     Muhammet ŞAFAK <info@muhammetsafak.com.tr>
  * @copyright  Copyright © 2022 Muhammet ŞAFAK
  * @license    ./LICENSE  MIT
- * @version    1.0
+ * @version    1.1
  * @link       https://www.muhammetsafak.com.tr
  */
 
@@ -21,9 +21,9 @@ interface CookieInterface
 {
 
     /**
-     * Çerezin varlığını kontrol eder.
+     * Cookie varlığını kontrol eder.
      *
-     * Süresi dolmuş bir çerez sorgulanmak istenirse; false döner ve çerezi kaldırmaya çalışır.
+     * Süresi dolmuş bir cookie sorgulanmak istenirse; false döner ve cookie kaldırılır.
      *
      * @param string $key
      * @return bool
@@ -31,9 +31,9 @@ interface CookieInterface
     public function has(string $key): bool;
 
     /**
-     * Çerezin değerini verir.
+     * Cookie değerini verir.
      *
-     * Süresi dolmuş ya da olmayan bir çerez istenirse $default döner.
+     * Süresi dolmuş ya da olmayan bir cookie istenirse $default döner.
      *
      * @param string $key
      * @param mixed $default
@@ -42,10 +42,21 @@ interface CookieInterface
     public function get(string $key, $default = null);
 
     /**
-     * Bir çerezi tanımlar.
+     * Cookie değerini verir ve siler.
      *
-     * Bu yöntem çerezi doğrudan kullanının tarayıcısna göndermez. Çerezin geçerli değerini değiştirir/tanımlar.
-     * Yapılan değişiklik CookieInterface::__destruct() yönteminde ya da kendisinden sonraki CookieInterface::push() yöntemi ile tarayıcıya aktarılır.
+     * CookieInterface::get() yönteminden farklı olarak cookie değeri getirildikten sonra cookie silinir.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function pull(string $key, $default = null);
+
+    /**
+     * Bir cookie tanımlar.
+     *
+     * Bu yöntem cookie doğrudan kullanının tarayıcısna göndermez. Cookie geçerli değerini değiştirir/tanımlar.
+     * Yapılan değişiklik CookieInterface::__destruct() yönteminde ya da kendisinden sonraki CookieInterface::send() yöntemi ile tarayıcıya aktarılır.
      *
      * @param string $key
      * @param string|int|float|bool $value
@@ -59,12 +70,22 @@ interface CookieInterface
      * İlişkisel bir dizi kullanarak bir cookie tanımlar.
      *
      *
-     * @param string[] $array
+     * @param string[] $assoc
      * @param int|null $ttl
      * @return $this
      * @throws CookieInvalidArgumentException
      */
-    public function setArray(array $array, ?int $ttl = null): self;
+    public function setArray(array $assoc, ?int $ttl = null): self;
+
+    /**
+     * Bir Cookie verisi set eder. CookieInterface::set() yönteminden farklı olarak bu yöntem geriye $value döndürür.
+     *
+     * @param string $key
+     * @param string|int|float|bool $value
+     * @param null|int $ttl
+     * @return mixed
+     */
+    public function push(string $key, $value, ?int $ttl = null);
 
     /**
      * Tüm cookie verisini (süresi dolmayanları) ilişkisel bir dizi olarak verir.
@@ -74,6 +95,17 @@ interface CookieInterface
     public function all(): array;
 
     /**
+     * Cookie kaldırır.
+     *
+     * Bu yöntemde cookie doğrudan kullanının tarayıcısna gönderilmez. Cookie geçerli script içinde kaldırılır.
+     * Yapılan değişiklik CookieInterface::__destruct() yönteminde ya da kendisinden sonraki CookieInterface::send() yöntemi ile tarayıcıya aktarılır.
+     *
+     * @param string ...$key
+     * @return $this
+     */
+    public function remove(string ...$key): self;
+
+    /**
      * Geçerli değişikleri (set,remove) kullanıcının browserına gönderir.
      *
      * Eğer bir değişiklik yoksa bir şey yapmaz.
@@ -81,18 +113,16 @@ interface CookieInterface
      * @see setcookie()
      * @return bool
      */
-    public function push(): bool;
+    public function send(): bool;
 
     /**
-     * Çerezi kaldırır.
+     * Cookie kaldırılmadan sadece içeriğini boşaltır.
      *
-     * Bu yöntem çerezi doğrudan kullanının tarayıcısna göndermez. Çerezin geçerli script içinde kaldırır.
-     * Yapılan değişiklik CookieInterface::__destruct() yönteminde ya da kendisinden sonraki CookieInterface::push() yöntemi ile tarayıcıya aktarılır.
+     * Yapılan değişiklik CookieInterface::__destruct() yönteminde ya da kendisinden sonraki CookieInterface::send() yöntemi ile tarayıcıya aktarılır.
      *
-     * @param string ...$key
-     * @return $this
+     * @return bool
      */
-    public function remove(string ...$key): self;
+    public function flush(): bool;
 
     /**
      * Tüm cookieleri yok eder.
