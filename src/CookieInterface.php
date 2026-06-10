@@ -1,14 +1,14 @@
 <?php
+
 /**
- * CookieInterface.php
+ * This file is part of the initphp/cookies package.
  *
- * This file is part of Cookies.
+ * (c) Muhammet ŞAFAK <info@muhammetsafak.com.tr>
  *
- * @author     Muhammet ŞAFAK <info@muhammetsafak.com.tr>
- * @copyright  Copyright © 2022 Muhammet ŞAFAK
- * @license    ./LICENSE  MIT
- * @version    1.1
- * @link       https://www.muhammetsafak.com.tr
+ * For the full copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ *
+ * @link https://github.com/InitPHP/Cookies
  */
 
 declare(strict_types=1);
@@ -17,119 +17,171 @@ namespace InitPHP\Cookies;
 
 use InitPHP\Cookies\Exception\CookieInvalidArgumentException;
 
+/**
+ * Contract for a signed, tamper-evident cookie manager.
+ *
+ * The manager keeps an in-memory working copy of the cookie payload.
+ * Mutating methods ({@see self::set()}, {@see self::setArray()},
+ * {@see self::remove()}, {@see self::flush()}) only change that working
+ * copy; nothing is written to the browser until {@see self::send()} is
+ * called — either explicitly (recommended, before any output) or by the
+ * destructor as a safety-net.
+ *
+ * Each entry carries its own absolute expiry. Reading an expired entry
+ * ({@see self::has()}, {@see self::get()}, {@see self::all()}) removes
+ * it and reports it as absent.
+ *
+ * Stored values are limited to scalars (`string`, `bool`, `int`,
+ * `float` and numeric strings); anything else raises
+ * {@see CookieInvalidArgumentException}.
+ */
 interface CookieInterface
 {
-
     /**
-     * Cookie varlığını kontrol eder.
+     * Whether a non-expired value is stored for $key.
      *
-     * Süresi dolmuş bir cookie sorgulanmak istenirse; false döner ve cookie kaldırılır.
+     * An entry whose TTL has elapsed is removed as a side effect and
+     * reported as absent.
      *
      * @param string $key
+     *
      * @return bool
      */
     public function has(string $key): bool;
 
     /**
-     * Cookie değerini verir.
+     * Return the value stored for $key, or $default when the key is
+     * absent or expired.
      *
-     * Süresi dolmuş ya da olmayan bir cookie istenirse $default döner.
+     * An expired entry is removed as a side effect before $default is
+     * returned.
      *
      * @param string $key
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return string|int|float|bool|mixed
      */
     public function get(string $key, $default = null);
 
     /**
-     * Cookie değerini verir ve siler.
+     * Return the value for $key and then remove it (read-once).
      *
-     * CookieInterface::get() yönteminden farklı olarak cookie değeri getirildikten sonra cookie silinir.
+     * Behaves like {@see self::get()} but the entry is always removed
+     * afterwards, whether or not it existed.
      *
      * @param string $key
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public function pull(string $key, $default = null);
 
     /**
-     * Bir cookie tanımlar.
+     * Stage a single cookie value.
      *
-     * Bu yöntem cookie doğrudan kullanının tarayıcısna göndermez. Cookie geçerli değerini değiştirir/tanımlar.
-     * Yapılan değişiklik CookieInterface::__destruct() yönteminde ya da kendisinden sonraki CookieInterface::send() yöntemi ile tarayıcıya aktarılır.
+     * The value is written to the working copy only; it reaches the
+     * browser through {@see self::send()} or the destructor. A null
+     * $ttl means "expires with the transport cookie" (no per-key
+     * expiry); a positive $ttl is the lifetime in seconds from now.
      *
-     * @param string $key
+     * @param string                $key
      * @param string|int|float|bool $value
-     * @param int|null $ttl
+     * @param int|null              $ttl   Seconds from now, or null.
+     *
      * @return $this
-     * @throws CookieInvalidArgumentException
+     *
+     * @throws CookieInvalidArgumentException If $value is not scalar or
+     *                                        $ttl is zero.
      */
     public function set(string $key, $value, ?int $ttl = null): self;
 
     /**
-     * İlişkisel bir dizi kullanarak bir cookie tanımlar.
+     * Stage several cookies from an associative array sharing one TTL.
      *
+     * @param array<string, string|int|float|bool> $assoc
+     * @param int|null                             $ttl   Seconds from now, or null.
      *
-     * @param string[] $assoc
-     * @param int|null $ttl
      * @return $this
-     * @throws CookieInvalidArgumentException
+     *
+     * @throws CookieInvalidArgumentException If a key is not a string,
+     *                                        a value is not scalar, or
+     *                                        $ttl is zero.
      */
     public function setArray(array $assoc, ?int $ttl = null): self;
 
     /**
-     * Bir Cookie verisi set eder. CookieInterface::set() yönteminden farklı olarak bu yöntem geriye $value döndürür.
+     * Stage a single cookie value and return that value.
      *
-     * @param string $key
+     * Identical to {@see self::set()} except it returns $value instead
+     * of the manager, which is convenient when assigning and storing in
+     * one expression.
+     *
+     * @param string                $key
      * @param string|int|float|bool $value
-     * @param null|int $ttl
-     * @return mixed
+     * @param int|null              $ttl
+     *
+     * @return string|int|float|bool|mixed The staged $value.
+     *
+     * @throws CookieInvalidArgumentException If $value is not scalar or
+     *                                        $ttl is zero.
      */
     public function push(string $key, $value, ?int $ttl = null);
 
     /**
-     * Tüm cookie verisini (süresi dolmayanları) ilişkisel bir dizi olarak verir.
+     * Return every non-expired staged cookie as a key => value map.
      *
-     * @return array
+     * Expired entries are removed as a side effect and excluded from
+     * the result.
+     *
+     * @return array<string, string|int|float|bool>
      */
     public function all(): array;
 
     /**
-     * Cookie kaldırır.
+     * Stage the removal of one or more cookies.
      *
-     * Bu yöntemde cookie doğrudan kullanının tarayıcısna gönderilmez. Cookie geçerli script içinde kaldırılır.
-     * Yapılan değişiklik CookieInterface::__destruct() yönteminde ya da kendisinden sonraki CookieInterface::send() yöntemi ile tarayıcıya aktarılır.
+     * The removal reaches the browser through {@see self::send()} or
+     * the destructor. Removing a missing key is a no-op.
      *
      * @param string ...$key
+     *
      * @return $this
      */
     public function remove(string ...$key): self;
 
     /**
-     * Geçerli değişikleri (set,remove) kullanıcının browserına gönderir.
+     * Write the staged state to the browser via setcookie().
      *
-     * Eğer bir değişiklik yoksa bir şey yapmaz.
+     * Does nothing and returns true when no mutation has occurred since
+     * the last send. Should be called before any output is produced.
      *
-     * @see setcookie()
-     * @return bool
+     * @see \setcookie()
+     *
+     * @return bool True on success (or no-op), false if the underlying
+     *              writer reported a failure.
      */
     public function send(): bool;
 
     /**
-     * Cookie kaldırılmadan sadece içeriğini boşaltır.
+     * Clear every staged value without expiring the transport cookie.
      *
-     * Yapılan değişiklik CookieInterface::__destruct() yönteminde ya da kendisinden sonraki CookieInterface::send() yöntemi ile tarayıcıya aktarılır.
+     * The emptied state is written on the next {@see self::send()} (or
+     * by the destructor), which replaces the browser cookie with an
+     * empty, still-signed payload.
      *
      * @return bool
      */
     public function flush(): bool;
 
     /**
-     * Tüm cookieleri yok eder.
+     * Immediately expire and clear the transport cookie.
      *
-     * @see setcookie()
+     * Unlike {@see self::flush()} this writes to the browser right away,
+     * instructing it to delete the cookie, and empties the working copy.
+     *
+     * @see \setcookie()
+     *
      * @return bool
      */
     public function destroy(): bool;
-
 }

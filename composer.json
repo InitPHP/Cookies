@@ -1,12 +1,29 @@
 {
     "name": "initphp/cookies",
-    "description": "InitPHP Cookie Manager",
+    "description": "Signed, tamper-evident cookie manager for PHP with per-key TTL support.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "cookie",
+        "cookies",
+        "signed-cookies",
+        "hmac",
+        "security",
+        "initphp"
+    ],
     "autoload": {
         "psr-4": {
             "InitPHP\\Cookies\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "InitPHP\\Cookies\\Tests\\": "tests/"
+        }
+    },
+    "support": {
+        "source": "https://github.com/InitPHP/Cookies",
+        "issues": "https://github.com/InitPHP/Cookies/issues"
     },
     "authors": [
         {
@@ -18,7 +35,22 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.2",
-        "initphp/parameterbag": "^1.1"
+        "php": "^7.4 || ^8.0",
+        "initphp/parameterbag": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6",
+        "phpstan/phpstan": "^1.12",
+        "friendsofphp/php-cs-fixer": "^3.64"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:coverage": "phpunit --coverage-html=build/coverage",
+        "analyse": "phpstan analyse",
+        "cs:check": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix"
+    },
+    "config": {
+        "sort-packages": true
     }
 }
