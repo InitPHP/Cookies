@@ -5,6 +5,7 @@ single browser cookie whose payload is authenticated with an
 HMAC-SHA256 signature, so a client cannot read-tamper its way into
 forging cookie data. Each value can carry its own time-to-live.
 
+[![Designed & Maintained with Tan](https://www.muhammetsafak.com.tr/badges/designed-maintained-with-tan.svg)](https://www.muhammetsafak.com.tr/en/tan/)
 [![CI](https://github.com/InitPHP/Cookies/actions/workflows/ci.yml/badge.svg)](https://github.com/InitPHP/Cookies/actions/workflows/ci.yml)
 [![Latest Stable Version](https://poser.pugx.org/initphp/cookies/v)](https://packagist.org/packages/initphp/cookies)
 [![License](https://poser.pugx.org/initphp/cookies/license)](./LICENSE)
