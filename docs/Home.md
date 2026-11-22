@@ -78,7 +78,7 @@ $cookie->get('missing', '-'); // '-' (default)
 
 - **License**: MIT
 - **Minimum PHP**: 8.2 (tested on 8.2 – 8.5)
-- **Runtime dependency**: [`initphp/parameterbag`](https://github.com/InitPHP/ParameterBag) `^2.0`
+- **Runtime dependency**: [`initphp/parameterbag`](https://github.com/InitPHP/ParameterBag) `^3.0`
 - **Packagist**: [`initphp/cookies`](https://packagist.org/packages/initphp/cookies)
 - **Source**: [github.com/InitPHP/Cookies](https://github.com/InitPHP/Cookies)
 - **Issues**: [github.com/InitPHP/Cookies/issues](https://github.com/InitPHP/Cookies/issues)

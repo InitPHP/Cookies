@@ -9,7 +9,7 @@ and run a five-line smoke test before moving on to the [Quick Start](Quick-Start
 | --- | --- |
 | PHP | `^8.2` (tested on 8.2, 8.3, 8.4 and 8.5) |
 | Extensions | None beyond the PHP core (`hash`, `setcookie` are built in) |
-| Runtime dependency | [`initphp/parameterbag`](https://github.com/InitPHP/ParameterBag) `^2.0` |
+| Runtime dependency | [`initphp/parameterbag`](https://github.com/InitPHP/ParameterBag) `^3.0` |
 
 The only runtime dependency is `initphp/parameterbag`, which Composer pulls
 in automatically. Development tools (PHPUnit, PHPStan, PHP-CS-Fixer) live
