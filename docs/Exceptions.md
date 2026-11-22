@@ -1,12 +1,11 @@
 # Exceptions
 
-Goal: know every condition that makes the package throw, and how to
-catch it.
+Know every condition that makes the package throw, and how to catch it.
 
 The package throws a single exception type:
 `InitPHP\Cookies\Exception\CookieInvalidArgumentException`. It extends
-`\InvalidArgumentException`, so `catch (\InvalidArgumentException $e)`
-blocks continue to work.
+`\InvalidArgumentException`, so existing
+`catch (\InvalidArgumentException $e)` blocks continue to work.
 
 ## When it is raised
 
@@ -19,17 +18,16 @@ blocks continue to work.
 | Non-associative array to `setArray` (integer key) | `$cookie->setArray(['just-a-value']);` |
 | Zero TTL to `set` / `setArray` / `push` | `$cookie->set('k', 'v', 0);` |
 
-Note what does **not** throw:
+## What does NOT throw
 
-- A **negative** TTL — it is normalized with `abs()` (so `-100` behaves
-  like `100`). See [TTL and expiry](usage/ttl-and-expiry.md).
-- An **empty** array to `setArray()` — it is a no-op.
-- An **unknown** option key in the constructor — it is ignored.
-- A missing key to `get`/`has`/`remove`/`pull` — these return a
-  default / `false` / are no-ops.
-- A tampered or malformed **incoming** cookie — it is silently
-  discarded and re-issued clean (no exception). See the
-  [security model](security-model.md).
+| Situation | Behavior instead |
+| --- | --- |
+| A **negative** TTL | Normalized with `abs()` (so `-100` behaves like `100`). See [TTL & Expiry](TTL-and-Expiry.md#negative-ttl-is-normalized-with-abs). |
+| An **empty** array to `setArray()` | A no-op (does not mark the state changed). |
+| An **unknown** option key in the constructor | Silently ignored. |
+| A missing key to `get` / `has` / `remove` / `pull` | Returns the default / `false` / is a no-op. |
+| A tampered, malformed, or wrong-salt **incoming** cookie | Silently discarded and re-issued clean. See the [Security Model](Security-Model.md). |
+| An entry of the wrong shape in a signed payload | Ignored on read; dropped on the next re-encode. |
 
 ## Examples
 
@@ -38,8 +36,8 @@ Note what does **not** throw:
 ```php
 use InitPHP\Cookies\Cookie;
 
-new Cookie('', 'a-real-salt');     // throws — empty name
-new Cookie('app_session', '   ');  // throws — whitespace-only salt
+new Cookie('', 'a-real-salt');    // throws — empty name
+new Cookie('app_session', '   '); // throws — whitespace-only salt
 ```
 
 ### Non-scalar value
@@ -65,12 +63,12 @@ $cookie->setArray(['dark']);            // throws — list, integer key 0
 ### Zero TTL
 
 ```php
-$cookie->set('k', 'v', 0);            // throws
-$cookie->setArray(['k' => 'v'], 0);   // throws
-$cookie->push('k', 'v', 0);           // throws
+$cookie->set('k', 'v', 0);          // throws
+$cookie->setArray(['k' => 'v'], 0); // throws
+$cookie->push('k', 'v', 0);         // throws
 
-$cookie->set('k', 'v', null);         // fine — no per-key expiry
-$cookie->set('k', 'v', 3600);         // fine — 1 hour
+$cookie->set('k', 'v', null);       // fine — no per-key expiry
+$cookie->set('k', 'v', 3600);       // fine — 1 hour
 ```
 
 ## Catching it
@@ -94,6 +92,13 @@ InvalidArgumentException
 └── InitPHP\Cookies\Exception\CookieInvalidArgumentException
 ```
 
-If you wrap the package in your own service layer and want callers to
-catch a single, domain-specific type, re-throw the exception as a
-subclass of your own.
+If you wrap the package in your own service layer and want callers to catch a
+single, domain-specific type, re-throw the exception as a subclass of your
+own.
+
+## See also
+
+- [Basic Usage](Basic-Usage.md#allowed-value-types) — the allowed value types.
+- [TTL & Expiry](TTL-and-Expiry.md) — why zero throws and negative does not.
+- [Security Model](Security-Model.md) — why a hostile *incoming* cookie never throws.
+- [API Reference](API-Reference.md#exception) — the throwing method per call.

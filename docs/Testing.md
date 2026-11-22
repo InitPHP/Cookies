@@ -1,9 +1,8 @@
-# Recipe: testing cookies
+# Testing
 
-Goal: unit-test code that uses `Cookie` without emitting real HTTP
-headers or mutating `$_COOKIE`, by injecting the two test seams the
-constructor exposes — the raw `$source` (read side) and the `$writer`
-(write side).
+Unit-test code that uses `Cookie` without emitting real HTTP headers or
+mutating `$_COOKIE`, by injecting the two test seams the constructor exposes —
+the raw `$source` (read side) and the `$writer` (write side).
 
 ## The two seams
 
@@ -17,14 +16,15 @@ public function __construct(
 );
 ```
 
-- **`$source`** is a raw `['cookieName' => 'rawValue']` array. Pass it
-  to simulate an incoming cookie instead of reading `$_COOKIE`. The
-  `'rawValue'` must be in the on-the-wire format
+- **`$source`** is a raw `['cookieName' => 'rawValue']` array. Pass it to
+  simulate an incoming cookie instead of reading `$_COOKIE`. The `'rawValue'`
+  must be in the on-the-wire format
   (`base64(serialize(entries)) . '.' . hmac`), not a plain value.
-- **`$writer`** is a `callable(string $name, string $value, array $options): bool`.
-  Pass a recording closure to capture what *would* be written instead
-  of calling `setcookie()`. This also makes the destructor safety-net
-  harmless under test (it calls the recording writer, not real headers).
+- **`$writer`** is a
+  `callable(string $name, string $value, array $options): bool`. Pass a
+  recording closure to capture what *would* be written instead of calling
+  `setcookie()`. This also makes the destructor safety-net harmless under test
+  (it calls the recording writer, not real headers).
 
 ## A recording writer
 
@@ -49,10 +49,10 @@ $cookie->send();
 
 ## Reproducing the wire format for input
 
-To feed an incoming cookie to `$source`, you must produce the same
-signed envelope the manager writes. Each stored entry is
-`['value' => scalar, 'ttl' => int|null]` (an absolute Unix timestamp, or
-`null` for "no per-key expiry"):
+To feed an incoming cookie to `$source`, you must produce the same signed
+envelope the manager writes. Each stored entry is
+`['value' => scalar, 'ttl' => int|null]`, where `ttl` is an **absolute** Unix
+timestamp (or `null` for "no per-key expiry"):
 
 ```php
 function encodeCookie(array $entries, string $salt): string
@@ -71,16 +71,15 @@ $cookie = new InitPHP\Cookies\Cookie('session', 's3cr3t-salt', [], $source);
 $cookie->get('user'); // 'ada'
 ```
 
-This is exactly the pattern the package's own test suite uses. See
-[`tests/CookieTestCase.php`](../../tests/CookieTestCase.php), whose
-`encodeCookie()` helper and recording `writer()` are the canonical
-reference — including for crafting hostile inputs (expired entries,
+This is exactly the pattern the package's own test suite uses; its
+`CookieTestCase` provides the canonical `encodeCookie()` helper and recording
+`writer()` — including for crafting hostile inputs (expired entries,
 tampering, wrong salt).
 
 ## A reusable test base
 
-A small base class mirrors the package's scaffolding and keeps
-individual tests terse:
+A small base class mirrors the package's scaffolding and keeps individual
+tests terse:
 
 ```php
 use InitPHP\Cookies\Cookie;
@@ -135,10 +134,9 @@ abstract class CookieTestCase extends TestCase
 
 ## Example tests
 
-### Round trip: issuer → reader
+### Round trip: issuer to reader
 
-Capture what an issuer wrote, then feed it back into a reader as
-`$source`:
+Capture what an issuer wrote, then feed it back into a reader as `$source`:
 
 ```php
 final class MyCookieTest extends CookieTestCase
@@ -205,8 +203,8 @@ public function testTamperedCookieIsRejected(): void
 
 ## Testing code that depends on a cookie
 
-Type-hint `CookieInterface` in your own classes so a test can pass a
-manager wired to a recording writer:
+Type-hint [`CookieInterface`](API-Reference.md#cookieinterface) in your own
+classes so a test can pass a manager wired to a recording writer:
 
 ```php
 use InitPHP\Cookies\CookieInterface;
@@ -230,15 +228,21 @@ self::assertCount(1, $this->written);
 
 ## Common pitfalls
 
-- **Passing a plain value to `$source`.** The source value must be the
-  signed wire string. Use `encodeCookie()`; a raw `'ada'` has no
-  delimiter and is discarded.
-- **Mismatched salt between `encodeCookie()` and the manager.** If the
-  salts differ, verification fails and the cookie reads as empty — which
-  is correct, but surprising if you did not intend it.
-- **Forgetting that `ttl` in an entry is absolute.** When building input
-  by hand, the entry's `ttl` is an absolute Unix timestamp (or `null`),
-  not "seconds from now". Use `time() + N` for valid, `time() - N` for
-  expired.
-- **Mutating `$_COOKIE` in tests.** You do not need to — inject
-  `$source` instead, which keeps tests isolated and parallel-safe.
+- **Passing a plain value to `$source`.** The source value must be the signed
+  wire string. Use `encodeCookie()`; a raw `'ada'` has no delimiter and is
+  discarded.
+- **Mismatched salt between `encodeCookie()` and the manager.** If the salts
+  differ, verification fails and the cookie reads as empty — which is correct,
+  but surprising if you did not intend it.
+- **Forgetting that an entry's `ttl` is absolute.** When building input by
+  hand, the entry's `ttl` is an absolute Unix timestamp (or `null`), not
+  "seconds from now". Use `time() + N` for valid, `time() - N` for expired.
+- **Mutating `$_COOKIE` in tests.** You do not need to — inject `$source`
+  instead, which keeps tests isolated and parallel-safe.
+
+## See also
+
+- [Configuration](Configuration.md) — the `$source` and `$writer` constructor arguments.
+- [Security Model](Security-Model.md#what-gets-written-the-wire-format) — the wire format you reproduce in `encodeCookie()`.
+- [Sending & Lifecycle](Sending-and-Lifecycle.md) — the `send()` semantics your assertions pin.
+- [API Reference](API-Reference.md) — every method you might exercise.

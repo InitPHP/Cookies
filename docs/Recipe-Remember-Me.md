@@ -1,26 +1,25 @@
-# Recipe: remember me
+# Recipe: Remember Me
 
-Goal: issue a long-lived "remember me" login cookie that survives
-across sessions, using the signature for tamper-evidence and a
-server-side token store for the actual authentication.
+Issue a long-lived "remember me" login cookie that survives across sessions,
+using the signature for tamper-evidence and a server-side token store for the
+actual authentication.
 
 ## The pattern: store a reference, not the identity
 
-The cookie is signed but **not encrypted** — the client can read its
-contents (see the [security model](../security-model.md)). So the
-cookie must not carry anything that is sufficient to impersonate a user
-on its own (no raw user ID you trust blindly, no password hash). Store
-an **opaque, random selector + validator** and keep the authority
-server-side:
+The cookie is signed but **not encrypted** — the client can read its contents
+(see the [Security Model](Security-Model.md#integrity-is-not-secrecy)). So the
+cookie must not carry anything sufficient to impersonate a user on its own (no
+raw user ID you trust blindly, no password hash). Store an **opaque, random
+selector + validator** and keep the authority server-side:
 
 - **selector** — a random lookup key, stored in the cookie and in your
   database.
 - **validator** — a random secret; the cookie holds the raw value, the
-  database holds only its hash. On login you re-hash the cookie's
-  validator and compare against the stored hash.
+  database holds only its hash. On login you re-hash the cookie's validator and
+  compare against the stored hash.
 
-The HMAC signature stops a client from forging or editing the cookie;
-the server-side store is what actually grants the session.
+The HMAC signature stops a client from forging or editing the cookie; the
+server-side store is what actually grants the session.
 
 ## Issuing the cookie at login
 
@@ -55,6 +54,10 @@ function issueRememberMe(int $userId, TokenStore $store): void
     $cookie->send(); // before any output
 }
 ```
+
+> Keep the per-key TTL at or below the transport `ttl`. A per-key TTL longer
+> than the transport lifetime is lost when the browser drops the whole cookie.
+> See [TTL & Expiry](TTL-and-Expiry.md#footgun-per-key-ttl-longer-than-the-transport-ttl).
 
 ## Validating on a later request
 
@@ -115,24 +118,29 @@ $cookie->destroy(); // immediate deletion cookie
 $cookie->send();
 ```
 
-Use the **same** `path`/`domain` options you issued the cookie with, or
-the browser will not match and delete it. See
-[Configuration](../configuration.md).
+Use the **same** `path`/`domain` options you issued the cookie with, or the
+browser will not match and delete it. See
+[Configuration](Configuration.md#path-and-domain-also-used-by-destroy).
 
 ## Common pitfalls
 
-- **Putting the user ID alone in the cookie.** It is readable and, on
-  its own, trivially swappable in intent — only the signature stops the
-  edit, and you still would not want to leak the ID. Use an opaque
-  selector + a server-side store.
-- **Storing the raw validator in the database.** Store its hash; the
-  cookie holds the raw value. A database leak then does not hand out
-  usable tokens.
-- **`SameSite=Strict` for remember-me.** `Strict` is not sent on
-  cross-site top-level navigation, so a user arriving from an external
-  link would appear logged out. `Lax` is the usual choice.
-- **Calling `destroy()` with different options than you issued.** The
-  browser keeps the cookie. Match `path`/`domain`.
-- **Forgetting `send()`.** Issuing, refreshing, and destroying all
-  require a `send()` before output. See
-  [Sending and lifecycle](../usage/sending-and-lifecycle.md).
+- **Putting the user ID alone in the cookie.** It is readable and, on its own,
+  trivially swappable in intent — only the signature stops the edit, and you
+  still would not want to leak the ID. Use an opaque selector + a server-side
+  store.
+- **Storing the raw validator in the database.** Store its hash; the cookie
+  holds the raw value. A database leak then does not hand out usable tokens.
+- **`SameSite=Strict` for remember-me.** `Strict` is not sent on cross-site
+  top-level navigation, so a user arriving from an external link would appear
+  logged out. `Lax` is the usual choice. See
+  [Configuration](Configuration.md#samesite-normalized-validated-coupled-to-secure).
+- **Calling `destroy()` with different options than you issued.** The browser
+  keeps the cookie. Match `path`/`domain`.
+- **Forgetting `send()`.** Issuing, refreshing, and destroying all require a
+  `send()` before output. See [Sending & Lifecycle](Sending-and-Lifecycle.md).
+
+## See also
+
+- [Security Model](Security-Model.md) — why the cookie holds a reference, not the identity.
+- [Reading & Removing](Reading-and-Removing.md) — `destroy()` semantics for logout.
+- [Recipe: Flash Messages](Recipe-Flash-Messages.md) — a shorter-lived pattern.
