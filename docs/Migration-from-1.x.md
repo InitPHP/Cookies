@@ -109,7 +109,7 @@ The 2.0 release requires **PHP 7.4** or later (including 8.0–8.4); version
 3.0.0 raises the floor to **PHP 8.2**. 1.x advertised 7.2 but
 already relied on the PHP 7.3 `setcookie()` options-array signature, so the
 floor is now stated honestly. The runtime dependency is `initphp/parameterbag`
-`^2.0`, which Composer resolves automatically.
+(`^2.0` in 2.x, `^3.0` from 3.0.0), which Composer resolves automatically.
 
 ## What you need to change — checklist
 
@@ -122,7 +122,7 @@ floor is now stated honestly. The runtime dependency is `initphp/parameterbag`
       [`CookieInterface`](API-Reference.md#cookieinterface).
 - [ ] Ensure `send()` is called before output (this was always true, but worth
       re-verifying).
-- [ ] Run on PHP 7.4+ (8.2+ for 3.0.0) and confirm `initphp/parameterbag` resolves to `^2.0`.
+- [ ] Run on PHP 7.4+ (8.2+ for 3.0.0) and confirm `initphp/parameterbag` resolves to `^3.0`.
 
 ## See also
 

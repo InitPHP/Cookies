@@ -8,6 +8,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed (breaking)
 
+- Requires `initphp/parameterbag` `^3.0` (was `^2.0`). Projects that depend on
+  `initphp/parameterbag` directly must raise their constraint too.
 - Requires PHP `^8.2` (was `^7.4 || ^8.0`); PHP 7.4, 8.0 and 8.1 are no longer
   supported. CI now covers PHP 8.2, 8.3, 8.4 and 8.5.
 - Code style moved to PER-CS (php-cs-fixer, shared `.php-cs-fixer.dist.php`);
