@@ -13,7 +13,7 @@ the behavioral fixes are what matter.
   cookie to be reset once.
 - If your 1.x code set values with an explicit TTL and found them unreadable,
   **that bug is fixed** in 2.0.
-- Requires **PHP 7.4+** (2.0 release). The current `main` branch requires
+- Requires **PHP 7.4+** (2.x releases). Version 3.0.0 requires
   **PHP 8.2+**.
 - `Cookie` is now `final`.
 - Two **optional** constructor arguments were added after `$options`; existing
@@ -105,8 +105,8 @@ An empty or whitespace-only name or salt (after trimming) now throws
 
 ## PHP version and dependencies
 
-The 2.0 release requires **PHP 7.4** or later (including 8.0–8.4); the current
-`main` branch raises the floor to **PHP 8.2**. 1.x advertised 7.2 but
+The 2.0 release requires **PHP 7.4** or later (including 8.0–8.4); version
+3.0.0 raises the floor to **PHP 8.2**. 1.x advertised 7.2 but
 already relied on the PHP 7.3 `setcookie()` options-array signature, so the
 floor is now stated honestly. The runtime dependency is `initphp/parameterbag`
 `^2.0`, which Composer resolves automatically.
@@ -122,7 +122,7 @@ floor is now stated honestly. The runtime dependency is `initphp/parameterbag`
       [`CookieInterface`](API-Reference.md#cookieinterface).
 - [ ] Ensure `send()` is called before output (this was always true, but worth
       re-verifying).
-- [ ] Run on PHP 7.4+ (8.2+ for the current `main` branch) and confirm `initphp/parameterbag` resolves to `^2.0`.
+- [ ] Run on PHP 7.4+ (8.2+ for 3.0.0) and confirm `initphp/parameterbag` resolves to `^2.0`.
 
 ## See also
 
