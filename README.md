@@ -160,7 +160,7 @@ strings. Anything else throws
 
 ## Documentation
 
-Full developer documentation lives in [`docs/`](./docs/README.md):
+Full developer documentation lives in [`docs/`](./docs/Home.md):
 getting started, usage guides, the configuration reference, the security
 model, the API reference and practical recipes.
 
