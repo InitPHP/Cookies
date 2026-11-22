@@ -66,7 +66,7 @@ abstract class CookieTestCase extends TestCase
         array $options = [],
         array $source = [],
         string $name = self::NAME,
-        string $salt = self::SALT
+        string $salt = self::SALT,
     ): Cookie {
         return new Cookie($name, $salt, $options, $source, $this->writer());
     }

@@ -143,7 +143,7 @@ final class Cookie implements CookieInterface
         string $salt,
         array $options = [],
         ?array $source = null,
-        ?callable $writer = null
+        ?callable $writer = null,
     ) {
         $name = trim($name);
         $salt = trim($salt);

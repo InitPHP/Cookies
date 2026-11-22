@@ -62,7 +62,7 @@ final class SignatureSecurityTest extends CookieTestCase
     {
         $source = [self::NAME => $this->encodeCookie(
             ['user' => ['value' => 'ada', 'ttl' => null]],
-            'a-different-salt'
+            'a-different-salt',
         )];
 
         $cookie = $this->cookie([], $source);
