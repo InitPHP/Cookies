@@ -30,7 +30,7 @@ forging cookie data. Each value can carry its own time-to-live.
 
 ## Requirements
 
-- PHP 7.4, 8.0, 8.1, 8.2, 8.3 or 8.4
+- PHP 8.2, 8.3, 8.4 or 8.5
 - [initphp/parameterbag](https://github.com/InitPHP/ParameterBag) `^2.0`
 
 ## Installation

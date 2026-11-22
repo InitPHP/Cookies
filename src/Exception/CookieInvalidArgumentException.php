@@ -22,6 +22,4 @@ use InvalidArgumentException;
  * accept — an empty name/salt, a non-scalar cookie value, a
  * non-associative array, or a non-positive TTL.
  */
-final class CookieInvalidArgumentException extends InvalidArgumentException
-{
-}
+final class CookieInvalidArgumentException extends InvalidArgumentException {}
