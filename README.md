@@ -101,7 +101,7 @@ $cookie = new Cookie('app_session', $salt, [
     'ttl'      => 2592000, // transport-cookie lifetime in seconds (30 days)
     'path'     => '/',
     'domain'   => null,
-    'secure'   => false,
+    'secure'   => true,     // default: false; keep true in production (HTTPS only)
     'httponly' => true,
     'samesite' => 'Strict', // 'Strict' | 'Lax' | 'None'
 ]);

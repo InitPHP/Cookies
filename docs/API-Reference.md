@@ -139,7 +139,7 @@ normalized via `abs()`). See [TTL & Expiry](TTL-and-Expiry.md).
 
 ```php
 $cookie->set('user_id', 42)
-       ->set('otp', '123456', 3600);
+       ->set('promo_seen', true, 3600);
 ```
 
 ### `setArray`

@@ -67,7 +67,7 @@ A `null` TTL (the default) means the value lives as long as the transport
 cookie:
 
 ```php
-$cookie->set('otp', '123456', 3600); // valid for 1 hour
+$cookie->set('promo_seen', true, 3600); // valid for 1 hour
 $cookie->set('user_id', 42);         // null TTL — no per-key expiry
 ```
 
