@@ -25,7 +25,7 @@ $cookie = new Cookie('app_session', getenv('COOKIE_SALT'), [
 ]);
 
 // ...but this individual value is only valid for 1 hour.
-$cookie->set('otp', '123456', 3600);
+$cookie->set('promo_seen', true, 3600);
 ```
 
 ## Per-key TTL: seconds from now
