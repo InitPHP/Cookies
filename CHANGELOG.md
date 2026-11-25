@@ -4,6 +4,15 @@ All notable changes to `initphp/cookies` are documented here. The format is base
 on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2026-11-25
+
+### Documentation
+
+- The README and Configuration examples show `'secure' => true` (the default stays
+  `false`; keep it on in production).
+- The API reference, Quick Start and TTL and Expiry examples no longer store a
+  one-time password in a cookie.
+
 ## [3.0.0] - 2026-11-22
 
 ### Changed (breaking)
