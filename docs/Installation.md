@@ -7,7 +7,7 @@ and run a five-line smoke test before moving on to the [Quick Start](Quick-Start
 
 | | |
 | --- | --- |
-| PHP | `^8.2` (tested on 8.2, 8.3, 8.4 and 8.5) |
+| PHP | `^8.2` (tested on 8.2, 8.3, 8.4, 8.5 and 8.6) |
 | Extensions | None beyond the PHP core (`hash`, `setcookie` are built in) |
 | Runtime dependency | [`initphp/parameterbag`](https://github.com/InitPHP/ParameterBag) `^3.0` |
 
@@ -76,7 +76,7 @@ reads `$_COOKIE` and calls native `setcookie()`.
 
 ## Supported PHP versions in CI
 
-Every change runs the test matrix against PHP 8.2, 8.3, 8.4 and 8.5. If you find a regression on a supported version, please
+Every change runs the test matrix against PHP 8.2, 8.3, 8.4, 8.5 and 8.6. If you find a regression on a supported version, please
 [file an issue](https://github.com/InitPHP/Cookies/issues/new) and include
 the version reported by `php -v`.
 

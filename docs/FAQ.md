@@ -120,7 +120,7 @@ or header juggling — see [Testing](Testing.md).
 
 ## Which PHP versions are supported?
 
-PHP 8.2 and newer; CI runs 8.2, 8.3, 8.4 and 8.5. The 2.0 release supported
+PHP 8.2 and newer; CI runs 8.2, 8.3, 8.4, 8.5 and 8.6. The 2.0 release supported
 PHP 7.4+ (1.x advertised 7.2 but already relied on the PHP 7.3 `setcookie()`
 options-array signature). See [Migration (v1 → v2)](Migration-from-1.x.md).
 
